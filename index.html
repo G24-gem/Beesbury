@@ -405,7 +405,35 @@
                 font-size: 16px;
             }
         }
+
+        /* Scrollbar styling for the input box */
+#prompt::-webkit-scrollbar {
+    width: 6px; /* slim like the chat scrollbar */
+}
+
+#prompt::-webkit-scrollbar-track {
+    background: transparent; /* keep it clean */
+}
+
+#prompt::-webkit-scrollbar-thumb {
+    background: #3f3f46; /* same muted gray as chat scroll */
+    border-radius: 3px;
+}
+
+#prompt::-webkit-scrollbar-thumb:hover {
+    background: #52525b; /* slightly lighter on hover */
+}
+
+/* Firefox support */
+#prompt {
+    scrollbar-width: thin;
+    scrollbar-color: #3f3f46 transparent;
+}
+
     </style>
+     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/dompurify@2.4.0/dist/purify.min.js"></script>
+
 </head>
 <body>
     <div class="chat-container">
@@ -449,12 +477,32 @@
             </button>
         </div>
     </div>
-
+  
     <script>
         const chatMessages = document.getElementById('chatMessages');
         const promptInput = document.getElementById('prompt');
         const sendButton = document.getElementById('sendButton');
         const typingIndicator = document.getElementById('typingIndicator');
+       const msgArr = [
+  {
+    role: "system",
+    content: `
+You are Beesbury, an AI assistant.  
+Always respond in valid **Markdown**, using code blocks, headings, lists, etc.  
+
+### Formatting Rules:
+- Write in clear, well-structured **paragraphs**.  
+- Keep each paragraph between **2–5 sentences**.  
+- Use **headings** to separate sections when appropriate.  
+- Use **lists or bullet points** for multiple items.  
+- Never output raw JSON or unformatted text — only Markdown.  
+- Keep responses **concise but detailed** enough to be useful.  
+
+Your name is **Beesbury**. Display it naturally when greeting or signing off.
+    `
+  }
+];
+
 
         // Auto-resize textarea
         promptInput.addEventListener('input', function() {
@@ -520,12 +568,18 @@
             chatMessages.appendChild(messageDiv);
             chatMessages.scrollTop = chatMessages.scrollHeight;
 
-            if (useTypewriter && !isUser) {
-                return typeWriter(messageText, content);
-            } else {
-                messageText.textContent = content;
-                return Promise.resolve();
-            }
+            if (!isUser) {
+    // Render AI response as Markdown → sanitized HTML
+    const rawHtml = marked.parse(content);
+    const safeHtml = DOMPurify.sanitize(rawHtml);
+    messageText.innerHTML = safeHtml;
+    return Promise.resolve();
+} else {
+    // Keep user messages as plain text
+    messageText.textContent = content;
+    return Promise.resolve();
+}
+
         }
 
         function showTypingIndicator() {
@@ -562,20 +616,19 @@
             showTypingIndicator();
 
             try {
+
+                msgArr.push({role: "user", content: prompt});
                 const result = await fetch("https://openrouter.ai/api/v1/chat/completions", {
                     method: "POST",
                     headers: {
-                        "Authorization": "Bearer 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",
+                        "Authorization": "Bearer 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",
                         "Content-Type": "application/json",
                         "HTTP-Referer": "https://yourdomain.com",
                         "X-Title": "Beesbury AI Assistant"
                     },
                     body: JSON.stringify({
-                        model: "mistralai/mistral-7b-instruct",
-                        messages: [{
-                            role: "user",
-                            content: prompt
-                        }]
+                        model: "openai/gpt-3.5-turbo",
+                        messages: msgArr,
                     })
                 });
 
@@ -587,6 +640,7 @@
 
                 if (data.choices && data.choices[0]) {
                     await addMessage(data.choices[0].message.content, false, true);
+                    msgArr.push({role: "assistant", content: data.choices[0].message.content})
                 } else {
                     console.error("Unexpected response:", data);
                     await addMessage("I apologize, but I'm having trouble processing your request. Please try again.", false, true);
