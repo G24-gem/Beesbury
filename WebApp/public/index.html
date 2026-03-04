@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Beesbury — AI Group Chat</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🐝</text></svg>" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=Space+Mono:wght@400;700&family=Syne:wght@600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css" />
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <!-- Mobile sidebar overlay -->
+  <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
+
+  <div class="app">
+
+    <!-- ── Sidebar ── -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-header">
+        <div class="brand">
+          <div class="bee-logo">B</div>
+          <span class="brand-name">Beesbury</span>
+        </div>
+        <button class="icon-btn new-chat-btn" onclick="createNewChat()" title="New Chat">
+          <i class="fas fa-plus"></i>
+        </button>
+      </div>
+
+      <div class="sidebar-section-label">Recent Chats</div>
+
+      <div class="sidebar-chats" id="sidebarChats">
+        <!-- Injected by JS -->
+      </div>
+
+      <div class="sidebar-footer">
+        <div class="model-pills" id="sidebarModelPills">
+          <!-- Injected by JS -->
+        </div>
+        <div class="sidebar-meta">5 models · Free tier</div>
+      </div>
+    </aside>
+
+    <!-- ── Main ── -->
+    <main class="chat-main">
+
+      <!-- Header -->
+      <header class="chat-header">
+        <button class="icon-btn menu-btn" id="menuBtn" onclick="toggleSidebar()">
+          <i class="fas fa-bars"></i>
+        </button>
+        <div class="header-center">
+          <h1 class="chat-title" id="chatTitle">New Chat</h1>
+          <div class="header-models" id="headerModels">
+            <!-- Injected by JS -->
+          </div>
+        </div>
+        <div class="status-indicator">
+          <div class="status-dot" id="statusDot"></div>
+          <span id="statusText">Online</span>
+        </div>
+      </header>
+
+      <!-- Messages -->
+      <div class="messages" id="messages">
+        <!-- Welcome screen or messages -->
+      </div>
+
+      <!-- Thinking bar -->
+      <div class="thinking-bar" id="thinkingBar" style="display:none">
+        <div class="thinking-avatars" id="thinkingAvatars"></div>
+        <span class="thinking-label" id="thinkingLabel">Models are thinking</span>
+        <div class="thinking-dots">
+          <span></span><span></span><span></span>
+        </div>
+      </div>
+
+      <!-- Input -->
+      <div class="input-area">
+        <div class="input-wrapper">
+          <textarea
+            id="prompt"
+            placeholder="Message the group…"
+            rows="1"
+            autofocus
+          ></textarea>
+        </div>
+        <button class="interrupt-btn" id="interruptBtn" onclick="interrupt()" title="Stop" style="display:none">
+          <i class="fas fa-stop"></i>
+        </button>
+        <button class="send-btn" id="sendBtn" onclick="sendMessage()" title="Send">
+          <i class="fas fa-arrow-up"></i>
+        </button>
+      </div>
+
+    </main>
+  </div>
+
+  <!-- Rename modal -->
+  <div class="modal-overlay" id="renameModal" style="display:none">
+    <div class="modal">
+      <h3>Rename Chat</h3>
+      <input type="text" id="renameInput" placeholder="Chat title…" maxlength="60" />
+      <div class="modal-actions">
+        <button class="btn-secondary" onclick="closeRenameModal()">Cancel</button>
+        <button class="btn-primary" onclick="confirmRename()">Save</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div class="toast" id="toast"></div>
+
+  <!-- Scripts -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/9.1.6/marked.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.0.6/purify.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script src="/app.js"></script>
+</body>
+</html>
